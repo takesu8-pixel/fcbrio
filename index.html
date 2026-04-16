@@ -161,10 +161,10 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   <div class="modal">
     <h3>🔗 グループ共有リンク</h3>
     <p style="font-size:13px;color:#475569;line-height:1.6;">このリンクを LINE に貼り付けると、同じデータをグループで確認できます。<br>リンクを開いた人のアプリに現在のデータが読み込まれます。</p>
-    <div class="share-url-box" id="shareUrlBox">生成中...</div>
+    <input type="text" class="share-url-box" id="shareUrlBox" value="生成中..." readonly onclick="this.select()" style="cursor:text;">
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">閉じる</button>
-      <button class="btn btn-primary" onclick="copyShareUrl()">📋 コピー</button>
+      <button class="btn btn-primary" onclick="copyShareUrl()">📤 共有・コピー</button>
     </div>
   </div>
 </div>
@@ -456,18 +456,28 @@ function generateShareUrl(){
   return base+'?share='+LZString.compressToEncodedURIComponent(json);
 }
 function openShareModal(){
-  document.getElementById('shareUrlBox').textContent='生成中...';
+  document.getElementById('shareUrlBox').value='生成中...';
   openModal('shareModal');
   setTimeout(()=>{
-    document.getElementById('shareUrlBox').textContent=generateShareUrl();
+    document.getElementById('shareUrlBox').value=generateShareUrl();
   },100);
 }
 function copyShareUrl(){
-  const url=document.getElementById('shareUrlBox').textContent;
-  navigator.clipboard.writeText(url).then(()=>toast('📋 リンクをコピーしました！LINEに貼り付けてください')).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-    toast('📋 リンクをコピーしました！');
-  });
+  const url=document.getElementById('shareUrlBox').value;
+  // スマホ：ネイティブ共有シートを使う
+  if(navigator.share){
+    navigator.share({title:'FCブリーオ出店準備',url:url})
+      .then(()=>toast('✅ 共有しました'))
+      .catch(()=>{});
+    return;
+  }
+  // PC：クリップボードにコピー
+  navigator.clipboard.writeText(url)
+    .then(()=>toast('📋 コピーしました！LINEに貼り付けてください'))
+    .catch(()=>{
+      const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      toast('📋 コピーしました！');
+    });
 }
 function tryLoadFromHash(){
   // ?share= クエリパラメータ（LINE対応）
