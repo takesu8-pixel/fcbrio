@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FCブリーオ 出店準備アプリ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a3a6b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FCブリーオ">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:#f0f4f8;min-height:100vh;font-size:14px;}
@@ -161,10 +168,10 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   <div class="modal">
     <h3>🔗 グループ共有リンク</h3>
     <p style="font-size:13px;color:#475569;line-height:1.6;">このリンクを LINE に貼り付けると、同じデータをグループで確認できます。<br>リンクを開いた人のアプリに現在のデータが読み込まれます。</p>
-    <input type="text" class="share-url-box" id="shareUrlBox" value="生成中..." readonly onclick="this.select()" style="cursor:text;">
+    <div class="share-url-box" id="shareUrlBox">生成中...</div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">閉じる</button>
-      <button class="btn btn-primary" onclick="copyShareUrl()">📤 共有・コピー</button>
+      <button class="btn btn-primary" onclick="copyShareUrl()">📋 コピー</button>
     </div>
   </div>
 </div>
@@ -208,7 +215,7 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
 <!-- ① イベント情報 -->
 <div class="panel active" id="panel-event">
   <div class="event-hero">
-    <div class="event-name" id="displayEventName">中テレ・JA共済カップ 県南地区予選</div>
+    <div class="event-name" id="displayEventName">須賀川サッカーフェスティバル</div>
     <div class="event-date" id="displayEventDate">2026年4月25日（土）〜 26日（日）</div>
     <div class="event-chips">
       <span class="event-chip" id="displayPlace">📍 場所未設定</span>
@@ -218,12 +225,12 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   <div class="attendee-grid" id="attGrid"></div>
   <div class="card">
     <div class="card-title">✏️ イベント情報を編集</div>
-    <div class="form-group"><label>イベント名</label><input type="text" id="eventName" value="中テレ・JA共済カップ 県南地区予選"></div>
+    <div class="form-group"><label>イベント名</label><input type="text" id="eventName" value="須賀川サッカーフェスティバル"></div>
     <div class="row2">
       <div class="form-group"><label>出店日（開始）</label><input type="date" id="eventStart" value="2026-04-25"></div>
       <div class="form-group"><label>出店日（終了）</label><input type="date" id="eventEnd" value="2026-04-26"></div>
     </div>
-    <div class="form-group"><label>会場・場所</label><input type="text" id="eventPlace" placeholder="例: ○○グラウンド"></div>
+    <div class="form-group"><label>会場・場所</label><input type="text" id="eventPlace" value="福島空港公園グランド" placeholder="例: ○○グラウンド"></div>
     <div class="form-group"><label>メモ・備考</label>
       <textarea id="eventMemo">・かき氷スプーン不足に注意（2022年実績あり）&#10;・フランクフルトは初日で予測を上回ることがある&#10;・ホットドッグメニュー追加を検討</textarea>
     </div>
@@ -351,18 +358,19 @@ const STORAGE_KEY='fcbrio_app_v2';
 // ===== デフォルト状態 =====
 function defaultState(){
   return {
-    eventInfo:{name:'中テレ・JA共済カップ 県南地区予選',start:'2026-04-25',end:'2026-04-26',place:'',memo:'・かき氷スプーン不足に注意（2022年実績あり）\n・フランクフルトは初日で予測を上回ることがある\n・ホットドッグメニュー追加を検討'},
+    eventInfo:{name:'須賀川サッカーフェスティバル',start:'2026-04-25',end:'2026-04-26',place:'福島空港公園グランド',memo:'・かき氷スプーン不足に注意（2022年実績あり）\n・フランクフルトは初日で予測を上回ることがある\n・ホットドッグメニュー追加を検討'},
     days:[
-      {id:1,label:'4月25日（土）1日目',date:'2026-04-25',att:220,forecast:{1:100,2:130,3:80}},
-      {id:2,label:'4月26日（日）2日目',date:'2026-04-26',att:480,forecast:{1:160,2:200,3:120}},
+      {id:1,label:'4月25日（土）1日目',date:'2026-04-25',att:220,forecast:{1:100,2:130,3:80,4:66}},
+      {id:2,label:'4月26日（日）2日目',date:'2026-04-26',att:480,forecast:{1:160,2:200,3:120,4:144}},
     ],
     nextDayId:3,
     products:[
       {id:1,emoji:'🌭',name:'フランクフルト',price:200,cost:80,stock:180,unit:'本',note:'ホットドッグも検討中。初日で予測を上回ることがある',color:'#f97316'},
+      {id:3,emoji:'🌭',name:'ホットドッグ',price:200,cost:100,stock:200,unit:'串',note:'',color:'#a78bfa'},
       {id:2,emoji:'🍧',name:'かき氷',price:150,cost:30,stock:197,unit:'杯',note:'フレーバー：イチゴ／ブルーハワイ／メロン。スプーン不足注意',color:'#38bdf8'},
-      {id:3,emoji:'🍢',name:'玉コン',price:100,cost:30,stock:200,unit:'串',note:'みそだれ。竹串15cm 在庫200本',color:'#a78bfa'},
+      {id:4,emoji:'🥤',name:'ジュース類',price:100,cost:30,stock:100,unit:'個',note:'アイスコーヒー、ラムネ',color:'#22c55e'},
     ],
-    nextProdId:4,
+    nextProdId:5,
     inventory:[
       {id:1,name:'かき氷カップ',qty:'197個',status:'warn',cat:'消耗品'},
       {id:2,name:'かき氷用スプーン',qty:'200個弱',status:'warn',cat:'消耗品'},
@@ -395,15 +403,13 @@ function defaultState(){
       {id:5,name:'養生テープ（追加）',note:'半端のみ残り',assignee:'',priority:'mid',done:false},
       {id:6,name:'店販用袋Sサイズ',note:'残量少ない',assignee:'',priority:'mid',done:false},
       {id:7,name:'ペーパータオル（追加）',note:'半端のみ残り',assignee:'',priority:'mid',done:false},
-      {id:8,name:'玉コン（こんにゃく）',note:'串200本分を目安',assignee:'',priority:'mid',done:false},
       {id:9,name:'ケチャップ・マスタード',note:'容量要確認',assignee:'',priority:'mid',done:false},
-      {id:10,name:'みそだれ',note:'玉コン用',assignee:'',priority:'mid',done:false},
       {id:11,name:'かき氷シロップ 3種',note:'イチゴ・ブルーハワイ・メロン',assignee:'',priority:'mid',done:false},
       {id:12,name:'ジュース用透明カップ（追加）',note:'13個のみ残',assignee:'',priority:'low',done:false},
     ],
     nextBuyId:13,
     futurePlans:[
-      {id:1,name:'中テレ・JA共済カップ 県南予選',period:'4月',status:'decided'},
+      {id:1,name:'中テレ・JA共済カップ 県南予選',period:'4月',status:'considering'},
       {id:2,name:'マケルモンカ',period:'7月',status:'considering'},
       {id:3,name:'20周年記念大会',period:'8月？',status:'considering'},
       {id:4,name:'JA夢みなみ組合長杯',period:'9月？',status:'considering'},
@@ -421,7 +427,13 @@ let nextDayId=S.nextDayId,nextProdId=S.nextProdId,nextInvId=S.nextInvId,nextBuyI
 // ===== 保存・読み込み =====
 function saveState(){
   const state={eventInfo:getEventFormValues(),days,nextDayId,products,nextProdId,inventory,nextInvId,buyItems,nextBuyId,futurePlans,nextPlanId};
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+  try{
+    const json=JSON.stringify(state);
+    localStorage.setItem(STORAGE_KEY,json);
+  }catch(e){
+    console.error('保存失敗:',e);
+    toast('⚠️ データの保存に失敗しました。ブラウザの設定でlocalStorageが無効になっている可能性があります。');
+  }
 }
 function loadState(state){
   if(!state)return false;
@@ -456,28 +468,18 @@ function generateShareUrl(){
   return base+'?share='+LZString.compressToEncodedURIComponent(json);
 }
 function openShareModal(){
-  document.getElementById('shareUrlBox').value='生成中...';
+  document.getElementById('shareUrlBox').textContent='生成中...';
   openModal('shareModal');
   setTimeout(()=>{
-    document.getElementById('shareUrlBox').value=generateShareUrl();
+    document.getElementById('shareUrlBox').textContent=generateShareUrl();
   },100);
 }
 function copyShareUrl(){
-  const url=document.getElementById('shareUrlBox').value;
-  // スマホ：ネイティブ共有シートを使う
-  if(navigator.share){
-    navigator.share({title:'FCブリーオ出店準備',url:url})
-      .then(()=>toast('✅ 共有しました'))
-      .catch(()=>{});
-    return;
-  }
-  // PC：クリップボードにコピー
-  navigator.clipboard.writeText(url)
-    .then(()=>toast('📋 コピーしました！LINEに貼り付けてください'))
-    .catch(()=>{
-      const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-      toast('📋 コピーしました！');
-    });
+  const url=document.getElementById('shareUrlBox').textContent;
+  navigator.clipboard.writeText(url).then(()=>toast('📋 リンクをコピーしました！LINEに貼り付けてください')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('📋 リンクをコピーしました！');
+  });
 }
 function tryLoadFromHash(){
   // ?share= クエリパラメータ（LINE対応）
@@ -661,23 +663,38 @@ function addBuyItem(){
 // ===== ④ 商品設定 =====
 let openEmojiId=null;
 function renderProducts(){
-  document.getElementById('productList').innerHTML=products.map(p=>`<div class="product-card" id="pc-${p.id}"><div class="pc-color-strip" style="background:${p.color};"></div><div class="pc-header"><div style="position:relative;"><button class="pc-emoji-btn" onclick="toggleEmoji(${p.id})">${p.emoji}</button><div class="emoji-picker" id="ep-${p.id}">${EMOJI_LIST.map(e=>`<span class="emoji-opt" onclick="setProd(${p.id},'emoji','${e}');closeEmoji();">${e}</span>`).join('')}</div></div><input class="pc-title-input" type="text" value="${p.name}" onchange="setProd(${p.id},'name',this.value)" placeholder="商品名"><input type="color" value="${p.color}" title="カラー" style="width:28px;height:28px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none;" onchange="setProd(${p.id},'color',this.value);document.querySelector('#pc-${p.id} .pc-color-strip').style.background=this.value;"></div><div class="pc-fields"><div class="pc-field"><label>販売価格（円）</label><input type="number" value="${p.price}" onchange="setProd(${p.id},'price',+this.value);updateMargin(${p.id});"><div class="sub">1${p.unit}あたり</div></div><div class="pc-field"><label>仕入れ単価（円）</label><input type="number" value="${p.cost}" onchange="setProd(${p.id},'cost',+this.value);updateMargin(${p.id});"></div><div class="pc-field"><label>仕入れ予定数</label><input type="number" value="${p.stock}" onchange="setProd(${p.id},'stock',+this.value)"><div class="sub">単位：${p.unit}</div></div><div class="pc-field"><label>単位名</label><input type="text" value="${p.unit}" style="font-size:14px;" onchange="setProd(${p.id},'unit',this.value)"></div></div><div class="pc-margin" id="pm-${p.id}">${marginText(p)}</div><input class="pc-note-input" type="text" value="${p.note||''}" placeholder="メモ（任意）" onchange="setProd(${p.id},'note',this.value)"><div class="pc-delete"><button class="btn btn-danger btn-sm" onclick="removeProduct(${p.id})">🗑️ 削除</button></div></div>`).join('');
+  document.getElementById('productList').innerHTML=products.map((p,i)=>`<div class="product-card" id="pc-${p.id}"><div class="pc-color-strip" style="background:${p.color};"></div><div class="pc-header"><div style="position:relative;"><button class="pc-emoji-btn" onclick="toggleEmoji(${p.id})">${p.emoji}</button><div class="emoji-picker" id="ep-${p.id}">${EMOJI_LIST.map(e=>`<span class="emoji-opt" onclick="setProd(${p.id},'emoji','${e}');closeEmoji();">${e}</span>`).join('')}</div></div><input class="pc-title-input" type="text" value="${p.name}" onchange="setProd(${p.id},'name',this.value)" placeholder="商品名"><div style="display:flex;align-items:center;gap:4px;flex-shrink:0;"><div style="display:flex;flex-direction:column;gap:2px;"><button onclick="moveProduct(${i},-1)" ${i===0?'disabled':''} style="background:none;border:1px solid #e2e8f0;border-radius:5px;width:26px;height:22px;cursor:pointer;font-size:12px;color:#64748b;line-height:1;${i===0?'opacity:.3;':''}" title="上へ">▲</button><button onclick="moveProduct(${i},1)" ${i===products.length-1?'disabled':''} style="background:none;border:1px solid #e2e8f0;border-radius:5px;width:26px;height:22px;cursor:pointer;font-size:12px;color:#64748b;line-height:1;${i===products.length-1?'opacity:.3;':''}" title="下へ">▼</button></div><input type="color" value="${p.color}" title="カラー" style="width:28px;height:28px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none;" onchange="setProd(${p.id},'color',this.value);document.querySelector('#pc-${p.id} .pc-color-strip').style.background=this.value;"><button class="btn btn-danger btn-sm" onclick="removeProduct(${p.id})" title="削除">🗑️</button></div></div><div class="pc-fields"><div class="pc-field"><label>販売価格（円）</label><input type="number" value="${p.price}" onchange="setProd(${p.id},'price',+this.value);updateMargin(${p.id});"><div class="sub">1${p.unit}あたり</div></div><div class="pc-field"><label>仕入れ単価（円）</label><input type="number" value="${p.cost}" onchange="setProd(${p.id},'cost',+this.value);updateMargin(${p.id});"></div><div class="pc-field"><label>仕入れ予定数</label><input type="number" value="${p.stock}" onchange="setProd(${p.id},'stock',+this.value)"><div class="sub">単位：${p.unit}</div></div><div class="pc-field"><label>単位名</label><input type="text" value="${p.unit}" style="font-size:14px;" onchange="setProd(${p.id},'unit',this.value)"></div></div><div class="pc-margin" id="pm-${p.id}">${marginText(p)}</div><input class="pc-note-input" type="text" value="${p.note||''}" placeholder="メモ（任意）" onchange="setProd(${p.id},'note',this.value)"></div>`).join('');
+}
+function moveProduct(i,dir){
+  const j=i+dir;
+  if(j<0||j>=products.length)return;
+  [products[i],products[j]]=[products[j],products[i]];
+  saveState();renderProducts();
 }
 function marginText(p){if(!p.price)return'—';const r=Math.round((p.cost/p.price)*100);return`💰 売価${yen(p.price)} - 原価${yen(p.cost)} = 利益${yen(p.price-p.cost)}/${p.unit}（原価率${r}%）`;}
 function updateMargin(id){const p=products.find(x=>x.id===id);const el=document.getElementById('pm-'+id);if(p&&el)el.textContent=marginText(p);}
 function toggleEmoji(id){if(openEmojiId&&openEmojiId!==id)closeEmoji();const ep=document.getElementById('ep-'+id);ep.classList.toggle('show');openEmojiId=ep.classList.contains('show')?id:null;}
 function closeEmoji(){if(openEmojiId){document.getElementById('ep-'+openEmojiId)?.classList.remove('show');openEmojiId=null;}}
 document.addEventListener('click',e=>{if(openEmojiId&&!e.target.closest('.pc-emoji-btn')&&!e.target.closest('.emoji-picker'))closeEmoji();});
-function setProd(id,key,val){const p=products.find(x=>x.id===id);if(p){p[key]=val;if(key==='emoji'){const btn=document.querySelector(`#pc-${id} .pc-emoji-btn`);if(btn)btn.textContent=val;}}}
+function setProd(id,key,val){const p=products.find(x=>x.id===id);if(p){p[key]=val;if(key==='emoji'){const btn=document.querySelector(`#pc-${id} .pc-emoji-btn`);if(btn)btn.textContent=val;}saveState();}}
 function addProduct(){
   products.push({id:nextProdId++,emoji:'🍽️',name:'新しい商品',price:100,cost:30,stock:100,unit:'個',note:'',color:COLORS[products.length%COLORS.length]});
-  renderProducts();setTimeout(()=>document.querySelector('#panel-products .product-card:last-child')?.scrollIntoView({behavior:'smooth',block:'center'}),100);
+  saveState();renderProducts();setTimeout(()=>document.querySelector('#panel-products .product-card:last-child')?.scrollIntoView({behavior:'smooth',block:'center'}),100);
 }
 function removeProduct(id){
   if(!confirm('この商品を削除しますか？'))return;
   products=products.filter(x=>x.id!==id);days.forEach(d=>delete d.forecast[id]);renderProducts();saveState();toast('🗑️ 削除しました');
 }
-function saveProducts(){saveState();renderForecast();toast('✅ 商品設定を保存しました');}
+function saveProducts(){
+  products.forEach(p=>{
+    days.forEach(d=>{
+      if(d.forecast[p.id]===undefined){
+        d.forecast[p.id]=Math.round(d.att*0.3);
+      }
+    });
+  });
+  saveState();renderForecast();toast('✅ 商品設定を保存しました');
+}
 
 // ===== ⑤ 売上予測 =====
 function renderForecast(){
@@ -686,7 +703,9 @@ function renderForecast(){
 }
 function calcDayTotal(d){return products.reduce((s,p)=>s+(d.forecast[p.id]||0)*p.price,0);}
 function updateForecast(dayId,prodId,val){
-  const d=days.find(x=>x.id===dayId);if(d)d.forecast[prodId]=parseInt(val)||0;
+  const d=days.find(x=>x.id===dayId);
+  if(!d)return;
+  d.forecast[prodId]=parseInt(val)||0;
   const p=products.find(x=>x.id===prodId);
   if(p){const c=document.getElementById(`fct_${dayId}_${prodId}`);if(c)c.textContent=yen((d.forecast[prodId]||0)*p.price);}
   const st=document.getElementById(`fcday_${dayId}`);if(st)st.textContent=yen(calcDayTotal(d));
@@ -712,10 +731,13 @@ function renderProfit(){
     document.getElementById('syncBar').classList.add('show');
     setTimeout(()=>document.getElementById('syncBar').classList.remove('show'),4000);
   } else {
-    try{const saved=localStorage.getItem(STORAGE_KEY);if(saved)loadState(JSON.parse(saved));}catch(e){}
+    try{const saved=localStorage.getItem(STORAGE_KEY);if(saved)loadState(JSON.parse(saved));}catch(e){console.error('データ読み込み失敗:',e);}
   }
   renderAttGrid();renderDayList();renderFuturePlans();renderInv();renderBuy();renderProducts();renderForecast();
   applyEventDisplay(getEventFormValues());
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./service-worker.js').catch(e=>console.warn('SW登録失敗:',e));
+  }
 })();
 </script>
 </body>
