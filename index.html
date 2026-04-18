@@ -167,10 +167,11 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
 <div class="modal-overlay" id="shareModal">
   <div class="modal">
     <h3>🔗 グループ共有リンク</h3>
-    <p style="font-size:13px;color:#475569;line-height:1.6;">このリンクを LINE に貼り付けると、同じデータをグループで確認できます。<br>リンクを開いた人のアプリに現在のデータが読み込まれます。</p>
+    <p style="font-size:13px;color:#475569;line-height:1.6;">同じデータをグループで確認できます。<br>リンクを開いた人のアプリに現在のデータが読み込まれます。</p>
     <div class="share-url-box" id="shareUrlBox">生成中...</div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">閉じる</button>
+      <button class="btn btn-success" id="nativeShareBtn" onclick="nativeShare()" style="display:none;">📤 LINEで共有</button>
       <button class="btn btn-primary" onclick="copyShareUrl()">📋 コピー</button>
     </div>
   </div>
@@ -469,10 +470,15 @@ function generateShareUrl(){
 }
 function openShareModal(){
   document.getElementById('shareUrlBox').textContent='生成中...';
+  document.getElementById('nativeShareBtn').style.display=navigator.share?'':'none';
   openModal('shareModal');
   setTimeout(()=>{
     document.getElementById('shareUrlBox').textContent=generateShareUrl();
   },100);
+}
+function nativeShare(){
+  const url=document.getElementById('shareUrlBox').textContent;
+  navigator.share({title:'FCブリーオ 出店準備データ',url}).catch(()=>{});
 }
 function copyShareUrl(){
   const url=document.getElementById('shareUrlBox').textContent;
