@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fcbrio-v1';
+const CACHE_NAME = 'fcbrio-v3';
 const ASSETS = [
   './',
   './index.html',
