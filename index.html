@@ -207,7 +207,7 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
     <div class="share-url-box" id="shareUrlBox">生成中...</div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">閉じる</button>
-      <button class="btn btn-success" id="nativeShareBtn" onclick="nativeShare()" style="display:none;">📤 LINEで共有</button>
+<button class="btn btn-success" id="nativeShareBtn" onclick="nativeShare()" style="display:none;">📤 LINEで共有</button>
       <button class="btn btn-primary" onclick="copyShareUrl()">📋 コピー</button>
     </div>
   </div>
@@ -654,7 +654,9 @@ function getEventFormValues(){
 
 // ===== URLハッシュで共有 =====
 function generateShareUrl(){
-  const state={eventInfo:getEventFormValues(),days,nextDayId,products,nextProdId,inventory,nextInvId,buyItems,nextBuyId,futurePlans,nextPlanId};
+  // 共有に必要な最小データのみ（在庫・買い出し・メモ・カウント除外）
+  const slimProducts=products.map(({id,emoji,name,price,cost,stock,unit,color})=>({id,emoji,name,price,cost,stock,unit,color}));
+  const state={eventInfo:getEventFormValues(),days,nextDayId,products:slimProducts,nextProdId};
   const json=JSON.stringify(state);
   const base='https://takesu8-pixel.github.io/fcbrio/';
   return base+'?share='+LZString.compressToEncodedURIComponent(json);
@@ -670,6 +672,24 @@ function openShareModal(){
 function nativeShare(){
   const url=document.getElementById('shareUrlBox').textContent;
   navigator.share({title:'FCブリーオ 出店準備データ',url}).catch(()=>{});
+}
+async function shortenUrl(){
+  const longUrl=document.getElementById('shareUrlBox').textContent.trim();
+  const btn=document.getElementById('shortenBtn');
+  btn.textContent='⏳ 短縮中...';btn.disabled=true;
+  try{
+    const resp=await fetch('https://is.gd/create.php?format=simple&url='+encodeURIComponent(longUrl));
+    if(!resp.ok)throw new Error();
+    const short=(await resp.text()).trim();
+    if(!short.startsWith('http'))throw new Error();
+    document.getElementById('shareUrlBox').textContent=short;
+    btn.style.display='none';
+    document.getElementById('nativeShareBtn').style.display=navigator.share?'':'none';
+    toast('✅ URLを短縮しました！');
+  }catch(e){
+    btn.textContent='🔗 短縮URL';btn.disabled=false;
+    toast('⚠️ 短縮に失敗しました。通常のURLをご利用ください。');
+  }
 }
 function copyShareUrl(){
   const url=document.getElementById('shareUrlBox').textContent;
