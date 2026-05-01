@@ -146,6 +146,42 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
 .plan-table tr:last-child td{border-bottom:none;}
 .plan-edit{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:4px 6px;font-size:12px;background:#fff;outline:none;}
 .plan-edit:focus{border-color:#2563eb;}
+/* 販売カウント */
+.sales-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;border:2px solid #e2e8f0;}
+.sales-emoji{font-size:28px;margin-right:8px;line-height:1;}
+.sales-product-name{font-size:17px;font-weight:800;color:#1e293b;}
+.sales-stock-row{display:flex;gap:14px;font-size:12px;color:#64748b;margin:6px 0 12px;flex-wrap:wrap;align-items:center;}
+.sales-stock-row .stock-pill{background:#f1f5f9;border-radius:100px;padding:3px 10px;font-weight:700;}
+.sales-stock-row .sold-pill{background:#dbeafe;color:#1d4ed8;border-radius:100px;padding:3px 10px;font-weight:700;}
+.sales-stock-row .remain-pill{border-radius:100px;padding:3px 10px;font-weight:700;}
+.remain-ok{background:#dcfce7;color:#166534;}
+.remain-warn{background:#fef9c3;color:#854d0e;}
+.remain-ng{background:#fee2e2;color:#991b1b;}
+.sales-counter{display:flex;align-items:center;gap:10px;}
+.sales-btn{width:68px;height:68px;border-radius:16px;border:none;font-size:32px;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .08s;-webkit-tap-highlight-color:transparent;user-select:none;}
+.sales-btn-minus{background:#fee2e2;color:#ef4444;}
+.sales-btn-minus:active{background:#fca5a5;transform:scale(.92);}
+.sales-btn-plus{background:#dcfce7;color:#16a34a;}
+.sales-btn-plus:active{background:#86efac;transform:scale(.92);}
+.sales-count-wrap{flex:1;text-align:center;}
+.sales-count{font-size:52px;font-weight:900;color:#1e293b;line-height:1.05;}
+.sales-count-unit{font-size:12px;color:#94a3b8;margin-top:2px;}
+.sales-revenue{text-align:right;font-size:13px;color:#475569;font-weight:600;margin-top:8px;}
+.sales-total-bar{background:linear-gradient(135deg,#166534,#22c55e);color:#fff;border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.sales-total-bar .stb-label{font-size:12px;opacity:.85;}
+.sales-total-bar .stb-val{font-size:28px;font-weight:900;}
+/* レポート */
+.report-hero{background:linear-gradient(135deg,#166534,#22c55e);color:#fff;border-radius:14px;padding:20px;text-align:center;margin-bottom:14px;}
+.report-hero .rh-label{font-size:12px;opacity:.85;margin-bottom:4px;}
+.report-hero .rh-val{font-size:40px;font-weight:900;}
+.report-table{width:100%;border-collapse:collapse;}
+.report-table th{background:#f8fafc;padding:9px 8px;font-size:11px;color:#64748b;font-weight:700;text-align:right;border-bottom:2px solid #e2e8f0;}
+.report-table th:first-child{text-align:left;}
+.report-table td{padding:9px 8px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:13px;vertical-align:middle;}
+.report-table td:first-child{text-align:left;font-weight:600;}
+.report-table tfoot td{font-weight:800;font-size:14px;color:#1e293b;border-top:2px solid #e2e8f0;border-bottom:none;background:#f8fafc;}
+.progress-bar-wrap{width:100%;background:#e2e8f0;border-radius:100px;height:5px;margin-top:4px;}
+.progress-bar{height:5px;border-radius:100px;}
 /* モーダル */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
@@ -173,6 +209,19 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">閉じる</button>
       <button class="btn btn-success" id="nativeShareBtn" onclick="nativeShare()" style="display:none;">📤 LINEで共有</button>
       <button class="btn btn-primary" onclick="copyShareUrl()">📋 コピー</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2026実績読込確認モーダル -->
+<div class="modal-overlay" id="confirm2026Modal">
+  <div class="modal">
+    <h3>📊 2026年実績データを読込</h3>
+    <p style="font-size:13px;color:#475569;line-height:1.6;">かき氷・からあげ・ホットドッグ・ポテト・玉コン・フランクフルト・ドリンクの<strong>7商品</strong>を2026年実績の単価・原価・仕入れ数で設定します。</p>
+    <p style="font-size:13px;color:#ef4444;margin-top:8px;font-weight:700;">⚠️ 現在の商品データは上書きされます。</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('confirm2026Modal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="closeModal('confirm2026Modal');exec2026Load()">読込む</button>
     </div>
   </div>
 </div>
@@ -209,6 +258,8 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   <button class="tab-btn"        onclick="switchTab('shopping')"  id="tab-shopping">🛒 買い出し</button>
   <button class="tab-btn"        onclick="switchTab('products')"  id="tab-products">🏷️ 商品</button>
   <button class="tab-btn"        onclick="switchTab('forecast')"  id="tab-forecast">📊 予測</button>
+  <button class="tab-btn"        onclick="switchTab('sales')"     id="tab-sales">🛍️ 販売</button>
+  <button class="tab-btn"        onclick="switchTab('report')"    id="tab-report">📈 レポート</button>
 </div>
 
 <div class="main">
@@ -314,6 +365,11 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
 <!-- ④ 商品設定 -->
 <div class="panel" id="panel-products">
   <div style="font-size:13px;color:#64748b;margin-bottom:12px;">商品を自由に追加・編集・削除できます。売上予測タブにも反映されます。</div>
+  <div class="card" style="background:#eff6ff;border:2px solid #93c5fd;padding:14px;margin-bottom:14px;">
+    <div style="font-size:14px;font-weight:700;color:#1d4ed8;margin-bottom:6px;">📥 2026年 須賀川FES 実績データを読込</div>
+    <div style="font-size:12px;color:#3b82f6;margin-bottom:10px;line-height:1.6;">7商品の単価・推定原価・仕入れ数を2026年実績から一括設定します。<br>⚠️ 現在の商品データは上書きされます。</div>
+    <button class="btn btn-primary btn-block" onclick="load2026Products()" style="background:#1d4ed8;">📊 2026実績から商品データを読込む</button>
+  </div>
   <div id="productList"></div>
   <button class="add-product-btn" onclick="addProduct()">＋ 商品を追加</button>
   <button class="btn btn-success btn-block" onclick="saveProducts()">💾 保存して予測に反映</button>
@@ -322,12 +378,26 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
 <!-- ⑤ 売上予測 -->
 <div class="panel" id="panel-forecast">
   <div class="past-ref">
-    <div class="pr-title">📋 2022年マケルモンカ 実績（参考）</div>
-    <div class="past-row"><span>🍧 かき氷 1日目</span><span style="font-weight:700;">155杯</span></div>
-    <div class="past-row"><span>🍧 かき氷 2日目</span><span style="font-weight:700;">210杯</span></div>
-    <div class="past-row"><span>🌭 フランクフルト 1日目</span><span style="font-weight:700;">140本</span></div>
-    <div class="past-row"><span>🌭 フランクフルト 2日目</span><span style="font-weight:700;">142本</span></div>
-    <div class="past-row"><span style="color:#94a3b8;font-size:11px;">2022は3日開催・7月・1日16チーム規模</span><span></span></div>
+    <div class="pr-title">📋 2026年 須賀川FES 実績（参考）／売上合計 ¥112,300 ／ 来場者 700人以上</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;">
+      <div>
+        <div class="past-row"><span>🍧 かき氷</span><span style="font-weight:700;">291杯 / ¥29,100</span></div>
+        <div class="past-row"><span>🍗 からあげ</span><span style="font-weight:700;">125個 / ¥25,000</span></div>
+        <div class="past-row"><span>🌭 ホットドッグ</span><span style="font-weight:700;">125個 / ¥25,000</span></div>
+        <div class="past-row"><span>🍟 ポテト</span><span style="font-weight:700;">115個 / ¥11,500</span></div>
+      </div>
+      <div>
+        <div class="past-row"><span>🍢 玉コン</span><span style="font-weight:700;">78個 / ¥7,800</span></div>
+        <div class="past-row"><span>🌭 フランクフルト</span><span style="font-weight:700;">52本 / ¥7,600</span></div>
+        <div class="past-row"><span>🥤 ドリンク</span><span style="font-weight:700;">63個 / ¥6,300</span></div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#64748b;margin-top:6px;padding-top:6px;border-top:1px dashed #e2e8f0;">
+      📊 粗利率45.9%（¥51,556）｜ ⚠️ フランク・ドリンクは原価超過（価格見直し推奨）
+    </div>
+    <div style="margin-top:8px;font-weight:700;font-size:12px;color:#475569;">日別内訳</div>
+    <div class="past-row"><span>1日目（4/25）売上</span><span style="font-weight:700;">¥40,450</span></div>
+    <div class="past-row"><span>2日目（4/26）売上</span><span style="font-weight:700;">¥71,850</span></div>
   </div>
   <div id="forecastDays"></div>
   <div class="fc-grand">
@@ -344,11 +414,131 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   </div>
 </div>
 
+<!-- ⑥ 販売カウント -->
+<div class="panel" id="panel-sales">
+  <div class="sales-total-bar">
+    <div><div class="stb-label">本日の売上合計</div><div class="stb-val" id="sales_total_disp">¥0</div></div>
+    <button onclick="resetSales()" style="background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">🔄 リセット</button>
+  </div>
+  <div id="salesList"></div>
+</div>
+
+<!-- ⑦ 売上レポート -->
+<div class="panel" id="panel-report">
+  <div class="report-hero">
+    <div class="rh-label">販売売上 合計</div>
+    <div class="rh-val" id="report_total">¥0</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📦 商品別 販売実績</div>
+    <table class="report-table">
+      <thead><tr><th>商品</th><th>販売数</th><th>残り</th><th>売上</th></tr></thead>
+      <tbody id="reportBody"></tbody>
+      <tfoot><tr><td>合計</td><td id="rep_total_qty">—</td><td>—</td><td id="rep_total_rev">—</td></tr></tfoot>
+    </table>
+  </div>
+</div>
+
 </div>
 
 <script>
 // ===== LZString 1.5.0 (公式) =====
 var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();
+
+// ===== 販売カウント =====
+let salesCount={};
+
+function renderSales(){
+  const total=products.reduce((s,p)=>s+(salesCount[p.id]||0)*p.price,0);
+  document.getElementById('sales_total_disp').textContent=yen(total);
+  document.getElementById('salesList').innerHTML=products.map(p=>{
+    const sold=salesCount[p.id]||0;
+    const remain=p.stock-sold;
+    const pct=p.stock>0?Math.min(100,Math.round(sold/p.stock*100)):0;
+    const rCls=remain<=0?'remain-ng':remain<=p.stock*0.2?'remain-warn':'remain-ok';
+    const barColor=remain<=0?'#ef4444':remain<=p.stock*0.2?'#f59e0b':'#22c55e';
+    return`<div class="sales-card">
+      <div style="display:flex;align-items:center;margin-bottom:4px;">
+        <span class="sales-emoji">${p.emoji}</span>
+        <span class="sales-product-name">${escHtml(p.name)}</span>
+      </div>
+      <div class="sales-stock-row">
+        <span class="stock-pill">仕入 ${p.stock}${p.unit}</span>
+        <span class="sold-pill">販売済 ${sold}${p.unit}</span>
+        <span class="remain-pill ${rCls}">残り ${remain}${p.unit}</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%;background:${barColor};"></div></div>
+      <div class="sales-counter" style="margin-top:12px;">
+        <button class="sales-btn sales-btn-minus" ontouchstart="" onclick="updateSales(${p.id},-1)">−</button>
+        <div class="sales-count-wrap">
+          <div class="sales-count" id="sc_${p.id}">${sold}</div>
+          <div class="sales-count-unit">${p.unit}</div>
+        </div>
+        <button class="sales-btn sales-btn-plus" ontouchstart="" onclick="updateSales(${p.id},1)">＋</button>
+      </div>
+      <div class="sales-revenue">${yen(p.price)}/個 × ${sold} = <strong>${yen(sold*p.price)}</strong></div>
+    </div>`;
+  }).join('');
+}
+
+function updateSales(id,delta){
+  const p=products.find(x=>x.id===id);
+  if(!p)return;
+  const cur=salesCount[id]||0;
+  const next=Math.max(0,Math.min(p.stock,cur+delta));
+  if(next===cur)return;
+  salesCount[id]=next;
+  saveState();
+  renderSales();
+}
+
+function resetSales(){
+  if(!confirm('販売カウントをリセットしますか？\n（仕入れ数はそのまま残ります）'))return;
+  salesCount={};
+  saveState();
+  renderSales();
+  toast('🔄 販売カウントをリセットしました');
+}
+
+function renderReport(){
+  let tqty=0,trev=0;
+  document.getElementById('reportBody').innerHTML=products.map(p=>{
+    const sold=salesCount[p.id]||0;
+    const remain=p.stock-sold;
+    const rev=sold*p.price;
+    const pct=p.stock>0?Math.round(sold/p.stock*100):0;
+    tqty+=sold;trev+=rev;
+    const rCls=remain<=0?'color:#ef4444;font-weight:700;':remain<=p.stock*0.2?'color:#d97706;':'color:#16a34a;';
+    return`<tr><td>${p.emoji} ${escHtml(p.name)}</td><td><strong>${sold}</strong>${p.unit}<br><small style="color:#94a3b8;">(${pct}%消化)</small></td><td style="${rCls}">${remain}${p.unit}</td><td style="font-weight:700;">${yen(rev)}</td></tr>`;
+  }).join('');
+  document.getElementById('report_total').textContent=yen(trev);
+  document.getElementById('rep_total_qty').textContent=tqty+'個';
+  document.getElementById('rep_total_rev').textContent=yen(trev);
+}
+
+// ===== 2026実績データ読込 =====
+function load2026Products(){ openModal('confirm2026Modal'); }
+function exec2026Load(){
+  products=[
+    {id:1, emoji:'🍧', name:'かき氷',       price:100, cost:30,  stock:320, unit:'杯', note:'2026実績: 291杯売上。1日目98杯・2日目193杯。シロップ3種', color:'#38bdf8'},
+    {id:2, emoji:'🍗', name:'からあげ',      price:200, cost:79,  stock:150, unit:'個', note:'2026実績: 125個売上。揚げ油含む推定原価。粗利率60.4%', color:'#f97316'},
+    {id:3, emoji:'🌭', name:'ホットドッグ',  price:200, cost:36,  stock:150, unit:'個', note:'2026実績: 125個売上。原価率17.9%で最高効率商品', color:'#a78bfa'},
+    {id:4, emoji:'🍟', name:'ポテト',        price:100, cost:46,  stock:130, unit:'個', note:'2026実績: 115個売上。ガス費は共通経費計上', color:'#facc15'},
+    {id:5, emoji:'🍢', name:'玉コン',        price:100, cost:22,  stock:100, unit:'個', note:'2026実績: 78個売上。原価率21.7%で収益性◎', color:'#34d399'},
+    {id:6, emoji:'🌭', name:'フランクフルト', price:150, cost:174, stock:80,  unit:'本', note:'⚠️2026実績: 52本・原価超過(119.1%)。価格見直し推奨', color:'#ef4444'},
+    {id:7, emoji:'🥤', name:'ドリンク',      price:100, cost:119, stock:80,  unit:'個', note:'⚠️2026実績: 63個・原価超過(119.5%)。仕入量・価格見直し推奨', color:'#60a5fa'},
+  ];
+  nextProdId=8;
+  days.forEach(d=>{
+    products.forEach(p=>{
+      if(d.forecast[p.id]===undefined) d.forecast[p.id]=Math.round(d.att*0.2);
+    });
+  });
+  saveState();
+  renderProducts();
+  switchTab('products');
+  toast('✅ 2026年実績データを読み込みました！内容を確認・調整してください');
+}
 
 // ===== 定数 =====
 const EMOJI_LIST=['🌭','🍧','🍢','🍕','🍔','🍜','🍱','🍣','🍩','🧁','🥤','☕','🧃','🍺','🍫','🍬','🍿','🥪','🌮','🍦','🧆','🥞','🍗','🥓','🎂','🍰'];
@@ -427,7 +617,7 @@ let nextDayId=S.nextDayId,nextProdId=S.nextProdId,nextInvId=S.nextInvId,nextBuyI
 
 // ===== 保存・読み込み =====
 function saveState(){
-  const state={eventInfo:getEventFormValues(),days,nextDayId,products,nextProdId,inventory,nextInvId,buyItems,nextBuyId,futurePlans,nextPlanId};
+  const state={eventInfo:getEventFormValues(),days,nextDayId,products,nextProdId,inventory,nextInvId,buyItems,nextBuyId,futurePlans,nextPlanId,salesCount};
   try{
     const json=JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY,json);
@@ -445,6 +635,7 @@ function loadState(state){
     buyItems=(state.buyItems||S.buyItems).map(x=>({assignee:'',  ...x}));
     nextBuyId=state.nextBuyId||S.nextBuyId;
     futurePlans=state.futurePlans||S.futurePlans; nextPlanId=state.nextPlanId||S.nextPlanId;
+    salesCount=state.salesCount||{};
     if(state.eventInfo){
       const ei=state.eventInfo;
       document.getElementById('eventName').value=ei.name||'';
@@ -550,6 +741,8 @@ function switchTab(tab){
   if(tab==='products')renderProducts();
   if(tab==='forecast')renderForecast();
   if(tab==='event'){renderDayList();renderFuturePlans();}
+  if(tab==='sales')renderSales();
+  if(tab==='report')renderReport();
 }
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
@@ -739,7 +932,7 @@ function renderProfit(){
   } else {
     try{const saved=localStorage.getItem(STORAGE_KEY);if(saved)loadState(JSON.parse(saved));}catch(e){console.error('データ読み込み失敗:',e);}
   }
-  renderAttGrid();renderDayList();renderFuturePlans();renderInv();renderBuy();renderProducts();renderForecast();
+  renderAttGrid();renderDayList();renderFuturePlans();renderInv();renderBuy();renderProducts();renderForecast();renderSales();renderReport();
   applyEventDisplay(getEventFormValues());
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./service-worker.js').catch(e=>console.warn('SW登録失敗:',e));
