@@ -314,7 +314,10 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
   <div class="card">
     <div class="card-title-row">
       <div class="card-title">📦 備品・在庫状況</div>
-      <button id="invSortBtn" class="btn btn-sm" style="background:#f1f5f9;color:#475569;font-size:12px;border:1px solid #e2e8f0;" onclick="cycleInvSort()">↕️ 状態順</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;font-size:12px;border:1px solid #93c5fd;" onclick="load2026Inventory()">📊 2026予想に更新</button>
+        <button id="invSortBtn" class="btn btn-sm" style="background:#f1f5f9;color:#475569;font-size:12px;border:1px solid #e2e8f0;" onclick="cycleInvSort()">↕️ 状態順</button>
+      </div>
     </div>
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
       <span class="badge badge-ok">◎十分</span><span class="badge badge-warn">△補充</span><span class="badge badge-ng">✕なし</span><span class="badge badge-buy">要購入</span>
@@ -578,27 +581,27 @@ function defaultState(){
     ],
     nextProdId:5,
     inventory:[
-      {id:1,name:'かき氷カップ',qty:'197個',status:'warn',cat:'消耗品'},
-      {id:2,name:'かき氷用スプーン',qty:'200個弱',status:'warn',cat:'消耗品'},
-      {id:3,name:'ジュース用透明カップ',qty:'13個',status:'warn',cat:'消耗品'},
-      {id:4,name:'紙コップ',qty:'7個',status:'warn',cat:'消耗品'},
-      {id:5,name:'フランス用紙袋',qty:'700枚程度',status:'ok',cat:'消耗品'},
-      {id:6,name:'竹串（15cm）',qty:'200本程度',status:'warn',cat:'消耗品'},
-      {id:7,name:'カセットコンロ用ガス',qty:'13本',status:'ok',cat:'調理器具'},
+      {id:1,name:'かき氷カップ',qty:'わずか（約6個）',status:'buy',cat:'消耗品'},
+      {id:2,name:'かき氷用スプーン',qty:'ほぼなし',status:'buy',cat:'消耗品'},
+      {id:3,name:'ジュース用透明カップ',qty:'若干残',status:'warn',cat:'消耗品'},
+      {id:4,name:'紙コップ',qty:'若干残',status:'warn',cat:'消耗品'},
+      {id:5,name:'フランス用紙袋',qty:'約520枚',status:'ok',cat:'消耗品'},
+      {id:6,name:'竹串（15cm）',qty:'約120本',status:'ok',cat:'消耗品'},
+      {id:7,name:'カセットコンロ用ガス',qty:'要確認（前回4本使用）',status:'warn',cat:'調理器具'},
       {id:8,name:'トング',qty:'あり',status:'ok',cat:'調理器具'},
       {id:9,name:'ゴミ袋',qty:'あり',status:'ok',cat:'清掃'},
-      {id:10,name:'ニトリル手袋S',qty:'200枚',status:'ok',cat:'衛生'},
-      {id:11,name:'ニトリル手袋M',qty:'200枚',status:'ok',cat:'衛生'},
-      {id:12,name:'店販用袋Sサイズ',qty:'少量',status:'warn',cat:'消耗品'},
-      {id:13,name:'除菌ウェットティッシュ',qty:'あり',status:'ok',cat:'衛生'},
-      {id:14,name:'ペーパータオル',qty:'半端のみ',status:'warn',cat:'清掃'},
+      {id:10,name:'ニトリル手袋S',qty:'残少量',status:'warn',cat:'衛生'},
+      {id:11,name:'ニトリル手袋M',qty:'残少量',status:'warn',cat:'衛生'},
+      {id:12,name:'店販用袋Sサイズ',qty:'約80〜90枚',status:'ok',cat:'消耗品'},
+      {id:13,name:'除菌ウェットティッシュ',qty:'残少量',status:'warn',cat:'衛生'},
+      {id:14,name:'ペーパータオル',qty:'残少量',status:'warn',cat:'清掃'},
       {id:15,name:'養生テープ',qty:'半端のみ',status:'warn',cat:'その他'},
       {id:16,name:'台拭き・布巾',qty:'0',status:'ng',cat:'清掃'},
       {id:17,name:'ポップ・画用紙',qty:'たくさん',status:'ok',cat:'その他'},
       {id:18,name:'紙皿・割り箸・スプーン',qty:'あり',status:'ok',cat:'消耗品'},
       {id:19,name:'洗剤・スポンジ・たわし',qty:'あり',status:'ok',cat:'清掃'},
       {id:20,name:'アイスピック・ザル・ボウル',qty:'あり',status:'ok',cat:'調理器具'},
-      {id:21,name:'フランクフルト/ホットドッグ',qty:'0',status:'buy',cat:'食材'},
+      {id:21,name:'串フランクフルト（残）',qty:'約26本',status:'warn',cat:'食材'},
     ],
     nextInvId:22,
     buyItems:[
@@ -851,6 +854,36 @@ function addFuturePlan(){
 
 // ===== ② 在庫 =====
 const statusLabel={ok:'◎ 十分',warn:'△ 補充',ng:'✕ なし',buy:'要購入'};
+const INV_2026=[
+  {id:1, name:'かき氷カップ',          qty:'わずか（約6個）',         status:'buy',  cat:'消耗品'},
+  {id:2, name:'かき氷用スプーン',        qty:'ほぼなし',               status:'buy',  cat:'消耗品'},
+  {id:3, name:'ジュース用透明カップ',     qty:'若干残',                 status:'warn', cat:'消耗品'},
+  {id:4, name:'紙コップ',              qty:'若干残',                 status:'warn', cat:'消耗品'},
+  {id:5, name:'フランス用紙袋',         qty:'約520枚',               status:'ok',   cat:'消耗品'},
+  {id:6, name:'竹串（15cm）',          qty:'約120本',               status:'ok',   cat:'消耗品'},
+  {id:7, name:'カセットコンロ用ガス',     qty:'要確認（前回4本使用）',     status:'warn', cat:'調理器具'},
+  {id:8, name:'トング',               qty:'あり',                  status:'ok',   cat:'調理器具'},
+  {id:9, name:'ゴミ袋',               qty:'あり',                  status:'ok',   cat:'清掃'},
+  {id:10,name:'ニトリル手袋S',          qty:'残少量',                status:'warn', cat:'衛生'},
+  {id:11,name:'ニトリル手袋M',          qty:'残少量',                status:'warn', cat:'衛生'},
+  {id:12,name:'店販用袋Sサイズ',        qty:'約80〜90枚',            status:'ok',   cat:'消耗品'},
+  {id:13,name:'除菌ウェットティッシュ',   qty:'残少量',                status:'warn', cat:'衛生'},
+  {id:14,name:'ペーパータオル',         qty:'残少量',                status:'warn', cat:'清掃'},
+  {id:15,name:'養生テープ',            qty:'半端のみ',               status:'warn', cat:'その他'},
+  {id:16,name:'台拭き・布巾',           qty:'0',                   status:'ng',   cat:'清掃'},
+  {id:17,name:'ポップ・画用紙',         qty:'たくさん',               status:'ok',   cat:'その他'},
+  {id:18,name:'紙皿・割り箸・スプーン',  qty:'あり',                  status:'ok',   cat:'消耗品'},
+  {id:19,name:'洗剤・スポンジ・たわし',  qty:'あり',                  status:'ok',   cat:'清掃'},
+  {id:20,name:'アイスピック・ザル・ボウル',qty:'あり',                 status:'ok',   cat:'調理器具'},
+  {id:21,name:'串フランクフルト（残）',   qty:'約26本',               status:'warn', cat:'食材'},
+];
+function load2026Inventory(){
+  if(!confirm('在庫データを2026年分析の予想数量に更新します。\n現在の在庫データは上書きされます。よろしいですか？'))return;
+  inventory=INV_2026.map(x=>({...x,deleted:false}));
+  nextInvId=22;
+  saveState();renderInv();
+  toast('✅ 2026年予想データで在庫を更新しました');
+}
 // sortMode: 0=元の順, 1=要購入→✕→△→◎（緊急順）, 2=◎→△→✕→要購入（安心順）
 const statusOrder={buy:0,ng:1,warn:2,ok:3};
 let invSortMode=0;
