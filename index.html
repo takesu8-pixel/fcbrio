@@ -334,6 +334,13 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
       <button class="btn btn-primary btn-sm" onclick="addInventory()">追加</button>
     </div>
   </div>
+  <div class="card" id="invTrashCard" style="display:none;border:1.5px solid #fca5a5;">
+    <div class="card-title-row">
+      <div class="card-title" style="color:#ef4444;">🗑️ 削除済み（復元できます）</div>
+      <button class="btn btn-danger btn-sm" onclick="permDeleteAllInv()">全て完全削除</button>
+    </div>
+    <table class="inv-table"><tbody id="invTrashBody"></tbody></table>
+  </div>
 </div>
 
 <!-- ③ 買い出しリスト -->
@@ -352,6 +359,13 @@ header h1 span{font-size:11px;font-weight:400;opacity:.85;display:block;}
       </select>
       <button class="btn btn-primary btn-sm" onclick="addBuyItem()">追加</button>
     </div>
+  </div>
+  <div class="card" id="buyTrashCard" style="display:none;border:1.5px solid #fca5a5;">
+    <div class="card-title-row">
+      <div class="card-title" style="color:#ef4444;">🗑️ 削除済み（復元できます）</div>
+      <button class="btn btn-danger btn-sm" onclick="permDeleteAllBuy()">全て完全削除</button>
+    </div>
+    <div id="buyTrashList"></div>
   </div>
   <div class="card">
     <div class="card-title-row">
@@ -837,10 +851,21 @@ function addFuturePlan(){
 // ===== ② 在庫 =====
 const statusLabel={ok:'◎ 十分',warn:'△ 補充',ng:'✕ なし',buy:'要購入'};
 function renderInv(){
-  document.getElementById('invBody').innerHTML=inventory.map(item=>`<tr><td><div class="inv-name">${item.name}</div><div class="inv-cat">${item.cat}</div></td><td><input class="inv-edit" type="text" value="${item.qty}" onchange="updateInv(${item.id},'qty',this.value)"></td><td><select style="border:none;background:none;font-size:11px;cursor:pointer;font-weight:700;width:100%;outline:none;" onchange="updateInv(${item.id},'status',this.value)">${['ok','warn','ng','buy'].map(s=>`<option value="${s}"${s===item.status?' selected':''}>${statusLabel[s]}</option>`).join('')}</select></td><td><button class="btn btn-danger btn-sm" onclick="removeInv(${item.id})">✕</button></td></tr>`).join('');
+  document.getElementById('invBody').innerHTML=inventory.filter(x=>!x.deleted).map(item=>`<tr><td><div class="inv-name">${item.name}</div><div class="inv-cat">${item.cat}</div></td><td><input class="inv-edit" type="text" value="${item.qty}" onchange="updateInv(${item.id},'qty',this.value)"></td><td><select style="border:none;background:none;font-size:11px;cursor:pointer;font-weight:700;width:100%;outline:none;" onchange="updateInv(${item.id},'status',this.value)">${['ok','warn','ng','buy'].map(s=>`<option value="${s}"${s===item.status?' selected':''}>${statusLabel[s]}</option>`).join('')}</select></td><td><button class="btn btn-danger btn-sm" onclick="removeInv(${item.id})">✕</button></td></tr>`).join('');
+  renderInvTrash();
+}
+function renderInvTrash(){
+  const trash=inventory.filter(x=>x.deleted);
+  const card=document.getElementById('invTrashCard');
+  if(!card)return;
+  card.style.display=trash.length?'':'none';
+  document.getElementById('invTrashBody').innerHTML=trash.map(item=>`<tr style="opacity:.65;"><td><div class="inv-name" style="text-decoration:line-through;">${item.name}</div><div class="inv-cat">${item.cat}</div></td><td style="text-align:center;">${item.qty}</td><td style="text-align:center;">${statusLabel[item.status]}</td><td style="display:flex;gap:4px;"><button class="btn btn-sm" style="background:#22c55e;color:#fff;padding:4px 7px;" onclick="restoreInv(${item.id})" title="復元">↩️</button><button class="btn btn-danger btn-sm" onclick="permDeleteInv(${item.id})" title="完全削除">🗑️</button></td></tr>`).join('');
 }
 function updateInv(id,key,val){const i=inventory.find(x=>x.id===id);if(i){i[key]=val;saveState();}if(key==='status')renderInv();}
-function removeInv(id){inventory=inventory.filter(x=>x.id!==id);renderInv();saveState();}
+function removeInv(id){const i=inventory.find(x=>x.id===id);if(i){i.deleted=true;renderInv();saveState();toast('削除しました　↩️ 復元できます');}}
+function restoreInv(id){const i=inventory.find(x=>x.id===id);if(i){i.deleted=false;renderInv();saveState();toast('↩️ 復元しました');}}
+function permDeleteInv(id){inventory=inventory.filter(x=>x.id!==id);renderInv();saveState();toast('🗑️ 完全に削除しました');}
+function permDeleteAllInv(){if(!confirm('削除済みを全て完全に削除しますか？この操作は取り消せません。'))return;inventory=inventory.filter(x=>!x.deleted);renderInv();saveState();toast('🗑️ 削除済みを全て完全に削除しました');}
 function addInventory(){
   const n=document.getElementById('newInvName').value.trim();if(!n)return;
   inventory.push({id:nextInvId++,name:n,qty:document.getElementById('newInvQty').value||'—',status:document.getElementById('newInvStatus').value,cat:'その他'});
@@ -851,27 +876,29 @@ function addInventory(){
 // ===== ③ 買い出し =====
 const prioEmoji={high:'🔴',mid:'🟡',low:'🟢'};
 function renderBuy(){
-  const active=buyItems.filter(x=>!x.done).sort((a,b)=>['high','mid','low'].indexOf(a.priority)-['high','mid','low'].indexOf(b.priority));
-  const done=buyItems.filter(x=>x.done);
+  const active=buyItems.filter(x=>!x.done&&!x.deleted).sort((a,b)=>['high','mid','low'].indexOf(a.priority)-['high','mid','low'].indexOf(b.priority));
+  const done=buyItems.filter(x=>x.done&&!x.deleted);
   document.getElementById('buyList').innerHTML=active.length===0
     ?'<div style="color:#94a3b8;text-align:center;padding:12px;font-size:13px;">全て完了！🎉</div>'
     :active.map(item=>`<div class="buy-item"><input type="checkbox" class="buy-check" onchange="toggleBuy(${item.id})"><span class="buy-priority">${prioEmoji[item.priority]}</span><div class="buy-info"><div class="buy-name">${item.name}</div>${item.note?`<div class="buy-note">${item.note}</div>`:''}<div class="buy-assignee">${item.assignee?`👤 担当: <span>${escHtml(item.assignee)}</span>`:''}</div></div><button class="btn btn-danger btn-sm" onclick="removeBuy(${item.id})">✕</button></div>`).join('');
   document.getElementById('buyDoneList').innerHTML=done.length===0
     ?'<div style="color:#94a3b8;text-align:center;padding:12px;font-size:13px;">まだありません</div>'
-    :done.map(item=>`<div class="buy-item buy-done"><input type="checkbox" class="buy-check" checked onchange="toggleBuy(${item.id})"><span class="buy-priority">${prioEmoji[item.priority]}</span><div class="buy-info"><div class="buy-name">${item.name}</div>${item.note?`<div class="buy-note">${item.note}</div>`:''}<div class="buy-assignee">${item.assignee?`👤 担当: <span>${escHtml(item.assignee)}</span>`:''}</div></div></div>`).join('');
+    :done.map(item=>`<div class="buy-item buy-done"><input type="checkbox" class="buy-check" checked onchange="toggleBuy(${item.id})"><span class="buy-priority">${prioEmoji[item.priority]}</span><div class="buy-info"><div class="buy-name">${item.name}</div>${item.note?`<div class="buy-note">${item.note}</div>`:''}<div class="buy-assignee">${item.assignee?`👤 担当: <span>${escHtml(item.assignee)}</span>`:''}</div></div><button class="btn btn-danger btn-sm" onclick="removeBuy(${item.id})">✕</button></div>`).join('');
+  renderBuyTrash();
+}
+function renderBuyTrash(){
+  const trash=buyItems.filter(x=>x.deleted);
+  const card=document.getElementById('buyTrashCard');
+  if(!card)return;
+  card.style.display=trash.length?'':'none';
+  document.getElementById('buyTrashList').innerHTML=trash.map(item=>`<div class="buy-item" style="opacity:.65;"><span class="buy-priority">${prioEmoji[item.priority]}</span><div class="buy-info"><div class="buy-name" style="text-decoration:line-through;">${item.name}</div>${item.note?`<div class="buy-note">${item.note}</div>`:''}</div><button class="btn btn-sm" style="background:#22c55e;color:#fff;padding:4px 7px;margin-right:4px;" onclick="restoreBuy(${item.id})" title="復元">↩️</button><button class="btn btn-danger btn-sm" onclick="permDeleteBuy(${item.id})" title="完全削除">🗑️</button></div>`).join('');
 }
 function toggleBuy(id){const i=buyItems.find(x=>x.id===id);if(i){i.done=!i.done;renderBuy();saveState();}}
-function removeBuy(id){
-  const idx=buyItems.findIndex(x=>x.id===id);
-  if(idx===-1)return;
-  const removed={...buyItems[idx]};
-  buyItems=buyItems.filter(x=>x.id!==id);
-  renderBuy();saveState();
-  toastWithUndo('🗑️ 削除しました',()=>{
-    buyItems.splice(idx,0,removed);renderBuy();saveState();toast('↩️ 元に戻しました');
-  });
-}
-function clearDone(){buyItems=buyItems.filter(x=>!x.done);renderBuy();saveState();toast('🗑️ 完了済みをクリアしました');}
+function removeBuy(id){const i=buyItems.find(x=>x.id===id);if(i){i.deleted=true;renderBuy();saveState();toast('削除しました　↩️ 復元できます');}}
+function restoreBuy(id){const i=buyItems.find(x=>x.id===id);if(i){i.deleted=false;renderBuy();saveState();toast('↩️ 復元しました');}}
+function permDeleteBuy(id){buyItems=buyItems.filter(x=>x.id!==id);renderBuy();saveState();toast('🗑️ 完全に削除しました');}
+function permDeleteAllBuy(){if(!confirm('削除済みを全て完全に削除しますか？この操作は取り消せません。'))return;buyItems=buyItems.filter(x=>!x.deleted);renderBuy();saveState();toast('🗑️ 削除済みを全て完全に削除しました');}
+function clearDone(){buyItems=buyItems.filter(x=>x.deleted||!x.done);renderBuy();saveState();toast('🗑️ 完了済みをクリアしました');}
 function addBuyItem(){
   const n=document.getElementById('newBuyName').value.trim();if(!n)return;
   buyItems.push({id:nextBuyId++,name:n,note:document.getElementById('newBuyNote').value.trim(),assignee:document.getElementById('newBuyAssignee').value.trim(),priority:document.getElementById('newBuyPriority').value,done:false});
